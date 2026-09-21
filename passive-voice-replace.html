@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Passive Voice — Replace the Word</title>
+<style>
+  :root{
+    --paper:#F6F1E7;
+    --ink:#20241F;
+    --navy:#1E3A34;
+    --gold:#B98A2B;
+    --rust:#A6432E;
+    --line:#C9BFA8;
+    --card:#FFFDF8;
+    --good:#3E6B4F;
+    --bad:#A6432E;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:Georgia,'Iowan Old Style','Times New Roman',serif;
+    padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px) 0;
+    line-height:1.55;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:40px 22px 90px;}
+  header.hero{border-bottom:3px solid var(--navy);padding-bottom:18px;margin-bottom:28px;}
+  .kicker{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:13px;letter-spacing:.04em;color:var(--navy);margin:0 0 6px;}
+  h1{font-size:clamp(28px,5vw,40px);margin:0 0 8px;color:var(--navy);font-weight:700;}
+  .sub{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#4B4B42;font-size:15px;max-width:58ch;}
+
+  .rulebox{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--gold);padding:20px 22px;margin-bottom:18px;}
+  .rulebox h2{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:14px;color:var(--navy);margin:0 0 10px;}
+  .formula{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:16px;font-weight:600;color:var(--rust);margin:4px 0;}
+  .example{font-style:italic;color:#4B4B42;margin:2px 0 14px;}
+  .why{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:14px;color:#4B4B42;border-top:1px solid var(--line);padding-top:12px;margin-top:6px;}
+
+  .how{
+    font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;
+    font-size:14px;color:#4B4B42;
+    background:#eee6d3;
+    border:1px dashed var(--line);
+    padding:12px 16px;
+    margin-bottom:22px;
+  }
+  .how b{color:var(--navy);}
+
+  section.exercise{background:var(--card);border:1px solid var(--line);padding:22px 22px 26px;margin-bottom:22px;}
+  .ex-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px;flex-wrap:wrap;}
+  .ex-title{font-size:20px;color:var(--navy);margin:0;}
+  .ex-tag{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:12px;color:#7a7259;}
+  .ex-note{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:14px;color:#4B4B42;margin:2px 0 16px;}
+
+  .q{padding:16px 0;border-top:1px dashed var(--line);}
+  .q:first-of-type{border-top:none;}
+  .q-text{font-size:17px;margin:0 0 10px;}
+
+  .swap{
+    display:inline-block;
+    position:relative;
+    cursor:pointer;
+    color:var(--rust);
+    font-weight:700;
+    border-bottom:2px dotted var(--rust);
+    padding:0 2px;
+  }
+  .swap.locked{cursor:default;border-bottom:none;}
+  .swap.locked.correct-word{color:var(--good);border-bottom:2px solid var(--good);}
+  .swap.locked.wrong-word{color:var(--bad);border-bottom:2px solid var(--bad);text-decoration:line-through;}
+
+  .menu{
+    display:none;
+    position:absolute;
+    top:calc(100% + 4px);
+    left:0;
+    background:#fff;
+    border:1.5px solid var(--navy);
+    border-radius:3px;
+    box-shadow:0 3px 8px rgba(0,0,0,.15);
+    z-index:10;
+    white-space:nowrap;
+  }
+  .menu.open{display:block;}
+  .menu button{
+    display:block;
+    width:100%;
+    font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;
+    font-size:14px;
+    text-align:left;
+    padding:8px 14px;
+    background:none;
+    border:none;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    color:var(--ink);
+  }
+  .menu button:last-child{border-bottom:none;}
+  .menu button:hover{background:#eee6d3;}
+
+  .after-word{color:var(--good);font-weight:700;}
+  .correction-note{
+    font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;
+    font-size:13px;
+    color:var(--bad);
+    margin-top:4px;
+    display:none;
+  }
+  .correction-note.show{display:block;}
+
+  .score-line{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:14px;color:var(--navy);margin-top:14px;font-weight:600;min-height:18px;}
+
+  .progress-wrap{position:sticky;top:env(safe-area-inset-top,0px);background:var(--paper);padding:10px 0 6px;z-index:5;border-bottom:1px solid var(--line);margin-bottom:8px;}
+  .progress-inner{max-width:720px;margin:0 auto;padding:0 22px;}
+  .progress-bar-bg{height:6px;background:#e3dbc7;border-radius:3px;overflow:hidden;}
+  .progress-bar-fg{height:100%;background:var(--gold);width:0%;transition:width .4s ease;}
+  .progress-label{font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:12px;color:#7a7259;margin-top:4px;}
+
+  footer{text-align:center;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:13px;color:#8a8267;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-bar-bg"><div class="progress-bar-fg" id="progressBar"></div></div>
+    <div class="progress-label" id="progressLabel">0 of 20 words replaced</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="kicker">Grammar · Level A2</p>
+    <h1>Passive Voice</h1>
+    <p class="sub">Present Simple &amp; Past Simple — click the underlined word and replace it with the correct passive form.</p>
+  </header>
+
+  <div class="rulebox">
+    <h2>THE RULE</h2>
+    <p class="formula">Present Simple Passive: am / is / are + V3</p>
+    <p class="example">The rooms are cleaned every day.</p>
+    <p class="formula">Past Simple Passive: was / were + V3</p>
+    <p class="example">The room was cleaned yesterday.</p>
+    <p class="why">We use the passive voice when the action or the result is important — not the person who does it. <i>The bread is baked every morning.</i> (We don't say who bakes it — it isn't important.)</p>
+  </div>
+
+  <div class="how">
+    <b>How it works:</b> click the red underlined word in each sentence. A small list opens — choose the correct passive form to replace it.
+  </div>
+
+  <section class="exercise" id="ex1">
+    <div class="ex-head">
+      <h2 class="ex-title">1. Present Simple</h2>
+      <span class="ex-tag">Replace the active verb</span>
+    </div>
+    <p class="ex-note">Click the underlined word and choose the passive form.</p>
+    <div id="ex1-body"></div>
+    <div class="score-line" id="ex1-score"></div>
+  </section>
+
+  <section class="exercise" id="ex2">
+    <div class="ex-head">
+      <h2 class="ex-title">2. Past Simple</h2>
+      <span class="ex-tag">Replace the active verb</span>
+    </div>
+    <p class="ex-note">Click the underlined word and choose the passive form.</p>
+    <div id="ex2-body"></div>
+    <div class="score-line" id="ex2-score"></div>
+  </section>
+
+  <section class="exercise" id="ex3">
+    <div class="ex-head">
+      <h2 class="ex-title">3. Mixed — Harder</h2>
+      <span class="ex-tag">Present &amp; Past together</span>
+    </div>
+    <p class="ex-note">Click the underlined word and choose the correct passive form. Look at the time word to choose present or past.</p>
+    <div id="ex3-body"></div>
+    <div class="score-line" id="ex3-score"></div>
+  </section>
+
+  <footer>Every word you replace correctly adds to your score.</footer>
+</div>
+
+<script>
+const TOTAL_Q = 20;
+let scores = {ex1:0, ex2:0, ex3:0};
+let done = new Set();
+let counter = 0;
+
+function updateProgress(){
+  const pct = Math.round((done.size/TOTAL_Q)*100);
+  document.getElementById('progressBar').style.width = pct+'%';
+  document.getElementById('progressLabel').textContent = done.size+' of '+TOTAL_Q+' words replaced';
+}
+
+/* before, activeWord, after, correct passive form, 2 wrong options */
+const ex1Data = [
+  {before:"The shop ", word:"opens", after:" at nine o'clock.", correct:"is opened", wrong:["opens","are opened"]},
+  {before:"They ", word:"make", after:" these shoes in Italy.", correct:"are made", wrong:["is made","make"]},
+  {before:"People ", word:"speak", after:" English in many countries.", correct:"is spoken", wrong:["are spoken","speak"]},
+  {before:"Someone ", word:"cleans", after:" the windows every week.", correct:"are cleaned", wrong:["is cleaned","cleans"]},
+  {before:"They ", word:"sell", after:" bread in that small shop.", correct:"is sold", wrong:["are sold","sell"]},
+  {before:"Workers ", word:"paint", after:" our house every year.", correct:"is painted", wrong:["are painted","paint"]},
+  {before:"The factory ", word:"produces", after:" new phones every year.", correct:"is produced", wrong:["are produced","produces"]}
+];
+const ex2Data = [
+  {before:"She ", word:"sent", after:" the letter yesterday.", correct:"was sent", wrong:["were sent","sent"]},
+  {before:"My mother ", word:"made", after:" these cakes last night.", correct:"were made", wrong:["was made","made"]},
+  {before:"Millions of people ", word:"watched", after:" the film.", correct:"was watched", wrong:["were watched","watched"]},
+  {before:"We ", word:"bought", after:" the tickets online.", correct:"were bought", wrong:["was bought","bought"]},
+  {before:"I ", word:"washed", after:" my car on Sunday.", correct:"was washed", wrong:["were washed","washed"]},
+  {before:"Builders ", word:"built", after:" the houses in 1990.", correct:"were built", wrong:["was built","built"]},
+  {before:"Engineers ", word:"invented", after:" this computer in the 1980s.", correct:"was invented", wrong:["were invented","invented"]}
+];
+const ex3Data = [
+  {before:"Farmers ", word:"grow", after:" rice in many countries.", correct:"is grown", wrong:["was grown","grow"]},
+  {before:"Tourists ", word:"visited", after:" the museum last month.", correct:"was visited", wrong:["is visited","visited"]},
+  {before:"A German company ", word:"makes", after:" this car.", correct:"is made", wrong:["was made","makes"]},
+  {before:"She ", word:"sent", after:" the email an hour ago.", correct:"was sent", wrong:["is sent","sent"]},
+  {before:"Workers ", word:"built", after:" that bridge in 1950.", correct:"was built", wrong:["is built","built"]},
+  {before:"People ", word:"drink", after:" coffee all over the world.", correct:"is drunk", wrong:["was drunk","drink"]}
+];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildExercise(containerId, data, exKey, total){
+  const container = document.getElementById(containerId);
+  data.forEach((item, i) => {
+    const q = document.createElement('div');
+    q.className = 'q';
+    const id = 'w_'+exKey+'_'+i;
+    const options = shuffle([item.correct, ...item.wrong]);
+    let optionsHtml = options.map(o => `<button type="button" data-value="${o}">${o}</button>`).join('');
+    q.innerHTML = `<p class="q-text">${i+1}. ${item.before}<span class="swap" id="${id}">${item.word}<span class="menu" id="menu_${id}">${optionsHtml}</span></span>${item.after}</p>
+      <div class="correction-note" id="note_${id}"></div>`;
+    container.appendChild(q);
+
+    const swapEl = document.getElementById(id);
+    const menuEl = document.getElementById('menu_'+id);
+
+    swapEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (swapEl.classList.contains('locked')) return;
+      document.querySelectorAll('.menu.open').forEach(m => { if (m !== menuEl) m.classList.remove('open'); });
+      menuEl.classList.toggle('open');
+    });
+
+    menuEl.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const picked = btn.dataset.value;
+        const textNode = swapEl.childNodes[0];
+        textNode.nodeValue = picked;
+        swapEl.classList.add('locked');
+        menuEl.classList.remove('open');
+        const note = document.getElementById('note_'+id);
+        if (picked === item.correct) {
+          swapEl.classList.add('correct-word');
+          scores[exKey]++;
+        } else {
+          swapEl.classList.add('wrong-word');
+          note.textContent = 'Correct answer: ' + item.correct;
+          note.classList.add('show');
+        }
+        done.add(id);
+        document.getElementById(exKey+'-score').textContent = 'Score: ' + scores[exKey] + ' / ' + total;
+        updateProgress();
+      });
+    });
+  });
+}
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.menu.open').forEach(m => m.classList.remove('open'));
+});
+
+buildExercise('ex1-body', ex1Data, 'ex1', ex1Data.length);
+buildExercise('ex2-body', ex2Data, 'ex2', ex2Data.length);
+buildExercise('ex3-body', ex3Data, 'ex3', ex3Data.length);
+updateProgress();
+</script>
+
+</body>
+</html>
